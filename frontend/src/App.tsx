@@ -1,20 +1,64 @@
-import { Button } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { Flashcard } from '@/types/flashcard';
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+} from '@mui/material';
+import Header from '@/components/Header';
+import FlashcardTable from '@/components/FlashcardTable';
+import flashcardsData from '@/data/flashcards.json';
 
-function App() {
-  const [count, setCount] = useState(0);
+export default function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: darkMode ? 'dark' : 'light',
+        },
+      }),
+    [darkMode]
+  );
+
+  const flashcards: Flashcard[] = useMemo(() => flashcardsData, []);
+
+  const handleRowClick = (flashcard: Flashcard) => {
+    console.log('Flashcard clicked:', flashcard);
+  };
+
+  const handleThemeToggle = () => {
+    setDarkMode((prev) => !prev);
+  };
 
   return (
-    <div className='flex flex-col p-10 mx-auto max-w-md border border-amber-500 rounded-md'>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <Button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </Button>
-        <Button variant='contained'>Contained</Button>
-      </div>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Header darkMode={darkMode} onThemeToggle={handleThemeToggle} />
+
+      <Container maxWidth='lg' sx={{ py: 4 }}>
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Typography variant='h4' component='h1' gutterBottom>
+            Flashcard Manager
+          </Typography>
+          <Typography variant='subtitle1' color='text.secondary'>
+            Organize and study your flashcards efficiently
+          </Typography>
+        </Box>
+
+        <Paper sx={{ p: 3 }}>
+          <FlashcardTable
+            flashcards={flashcards}
+            onRowClick={handleRowClick}
+            darkMode={darkMode}
+          />
+        </Paper>
+      </Container>
+    </ThemeProvider>
   );
 }
-
-export default App;
