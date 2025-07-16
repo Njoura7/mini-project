@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "question": "What is the derivative of x²?",
+    "answer": "The derivative of x² is 2x. This follows from the power rule: d/dx(xⁿ) = n·xⁿ⁻¹",
+    "topic": "Math",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 2,
+    "question": "What is the integral of 2x?",
+    "answer": "The integral of 2x is x² + C, where C is the constant of integration.",
+    "topic": "Math",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 3,
+    "question": "When did World War II end?",
+    "answer": "World War II ended on September 2, 1945, with the formal surrender of Japan aboard the USS Missouri in Tokyo Bay.",
+    "topic": "History",
+    "difficulty": "Medium"
+  },
+  {
+    "id": 4,
+    "question": "Who was the first President of the United States?",
+    "answer": "George Washington was the first President of the United States, serving from 1789 to 1797.",
+    "topic": "History",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 5,
+    "question": "What is the proper technique for freestyle breathing?",
+    "answer": "Breathe to the side by rotating your head with your body roll, exhale underwater through nose and mouth, and maintain a regular breathing pattern (every 2-3 strokes).",
+    "topic": "Swimming",
+    "difficulty": "Medium"
+  },
+  {
+    "id": 6,
+    "question": "What is the most efficient swimming stroke?",
+    "answer": "Freestyle (front crawl) is generally considered the most efficient swimming stroke for speed and energy conservation over long distances.",
+    "topic": "Swimming",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 7,
+    "question": "What is the quadratic formula?",
+    "answer": "The quadratic formula is x = (-b ± √(b² - 4ac)) / 2a, used to solve equations of the form ax² + bx + c = 0.",
+    "topic": "Math",
+    "difficulty": "Hard"
+  },
+  {
+    "id": 8,
+    "question": "When was the Declaration of Independence signed?",
+    "answer": "The Declaration of Independence was signed on July 4, 1776, in Philadelphia, Pennsylvania.",
+    "topic": "History",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 9,
+    "question": "What is the butterfly stroke technique?",
+    "answer": "Butterfly stroke involves simultaneous arm movements over water, dolphin kick with both legs together, and breathing forward when arms are at their highest point.",
+    "topic": "Swimming",
+    "difficulty": "Hard"
+  },
+  {
+    "id": 10,
+    "question": "What is the limit of sin(x)/x as x approaches 0?",
+    "answer": "The limit of sin(x)/x as x approaches 0 is 1. This is a fundamental limit in calculus.",
+    "topic": "Math",
+    "difficulty": "Hard"
+  }
+]
