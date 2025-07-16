@@ -38,4 +38,9 @@ public class CardRestController {
         return cardService.save(card);
     }
 
+    @DeleteMapping("/cards/{cardId}")
+    public long delete(@PathVariable long cardId){
+       return  cardService.delete(cardId);
+    }
+
 }

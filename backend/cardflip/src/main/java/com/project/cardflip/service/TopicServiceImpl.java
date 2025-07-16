@@ -2,6 +2,8 @@ package com.project.cardflip.service;
 
 import com.project.cardflip.dao.TopicRepository;
 import com.project.cardflip.entity.Topic;
+import com.project.cardflip.exceptions.ApiException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +20,14 @@ public class TopicServiceImpl implements TopicService {
 
 
     @Override
-    public Topic getTopicById(Long id) {
+    public Topic getById(Long id) {
         Optional<Topic> topic = topicRepository.findById(id);
 
-        if (topic.isPresent()) {
-            return topic.get();
-        }else{
-            throw new RuntimeException("Topic not found with id " + id);
+        if (!topic.isPresent()) {
+            throw new ApiException(HttpStatus.NOT_FOUND,
+                    "Topic not found with id " + id);
         }
+        return topic.get();
     }
 
     @Override
@@ -34,8 +36,21 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic saveTopic(Topic topic) {
+    public Topic save(Topic topic) {
         return topicRepository.save(topic);
+    }
+
+
+    @Override
+    public long delete(long id)
+    {
+        Optional<Topic> topic = topicRepository.findById(id);
+        if (!topic.isPresent()) {
+            throw new ApiException(HttpStatus.NOT_FOUND,
+                    "Topic not found with id " + id + " unable to delete");
+        }
+        topicRepository.deleteById(id);
+        return topic.get().getId();
     }
 
 

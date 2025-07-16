@@ -12,9 +12,11 @@ import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
 
-    public List<Card> findByTopicId(long topicId);
+    List<Card> findByTopicId(long topicId);
 
     @Query("SELECT c FROM Card c WHERE c.difficulty = :difficulty")
     List<Card> findByDifficulty(@Param("difficulty") Difficulty difficulty);
+
+
 
 }

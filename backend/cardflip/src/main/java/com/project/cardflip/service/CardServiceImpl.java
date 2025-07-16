@@ -3,8 +3,10 @@ package com.project.cardflip.service;
 import com.project.cardflip.dao.CardRepository;
 import com.project.cardflip.dao.TopicRepository;
 import com.project.cardflip.entity.Card;
+import com.project.cardflip.exceptions.ApiException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +25,13 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Card findById(Long id) {
+    public Card findById(long id) {
         Optional<Card > card = cardRepository.findById(id);
-        if(card.isPresent()) {
-            return card.get();
-        }else{
-            throw new EntityNotFoundException("Card not found at id = " + id);
-        }
+        if(!card.isPresent()) {
+            throw new ApiException(HttpStatus.NOT_FOUND,
+                    "Card not found with id " + id);
+
+        }return card.get();
     }
 
     @Override
@@ -40,8 +42,29 @@ public class CardServiceImpl implements CardService {
     @Override
     public Card save(Card card) {
         if(!topicRepository.existsById(card.getTopicId())) {
-            throw new EntityNotFoundException("Topic not found");
+            throw new ApiException(HttpStatus.NOT_FOUND,
+                    "Topic for card can not be found with id " + card.getTopicId());
         }
         return cardRepository.save(card);
+    }
+
+    @Override
+    public long delete(long id) {
+        Optional<Card > card = cardRepository.findById(id);
+        if(!card.isPresent()) {
+            throw new ApiException(HttpStatus.NOT_FOUND,
+                    "Card not found with id " + id + ", unable to delete");
+        }
+        cardRepository.deleteById(id);
+        return card.get().getId();
+    }
+
+// not yet implemented !!
+    @Override
+    public List<Card> findAllByTopicId(long id) {
+        if(!topicRepository.existsById(id)) {
+            throw new ApiException( HttpStatus.NOT_FOUND, "Topic not found");
+        }
+        return cardRepository.findByTopicId(id);
     }
 }

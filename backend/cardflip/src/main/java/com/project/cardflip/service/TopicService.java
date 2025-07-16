@@ -9,8 +9,9 @@ import java.util.List;
 public interface TopicService {
 
 
-    Topic getTopicById(Long id);
+    Topic getById(Long id);
     List<Topic> getTopics();
-    Topic saveTopic(Topic topic);
+    Topic save(Topic topic);
+    long delete(long id);
 
 }

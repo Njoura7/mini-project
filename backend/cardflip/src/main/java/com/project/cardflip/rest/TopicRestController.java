@@ -25,12 +25,17 @@ public class TopicRestController {
 
     @GetMapping("/topics/{topicId}")
     public Topic getTopic(@PathVariable long topicId){
-        return topicService.getTopicById(topicId);
+        return topicService.getById(topicId);
     }
 
     @PostMapping("/topics")
     public Topic saveTopic(@RequestBody Topic topic) {
-        return topicService.saveTopic(topic);
+        return topicService.save(topic);
+    }
+
+    @DeleteMapping("/topics/{topicId}")
+    public long deleteTopic(@PathVariable long topicId) {
+        return topicService.delete(topicId);
     }
 
 }
