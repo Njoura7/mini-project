@@ -32,4 +32,11 @@ public class TopicServiceImpl implements TopicService {
     public List<Topic> getTopics() {
         return topicRepository.findAll();
     }
+
+    @Override
+    public Topic saveTopic(Topic topic) {
+        return topicRepository.save(topic);
+    }
+
+
 }

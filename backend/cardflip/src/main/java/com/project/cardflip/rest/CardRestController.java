@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cardflip.dao.CardRepository;
 import com.project.cardflip.entity.Card;
 import com.project.cardflip.service.CardService;
+import com.project.cardflip.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,11 +16,13 @@ import java.util.List;
 public class CardRestController {
 
     private CardService cardService;
+    //private TopicService topicService;
     //private ObjectMapper objectMapper;
 
     @Autowired
     public CardRestController(CardService cardService) {
         this.cardService = cardService;
+        //this.topicService = topicService;
     }
 
     @GetMapping("/cards")
@@ -31,6 +31,11 @@ public class CardRestController {
     @GetMapping("/cards/{cardId}")
     public Card findById(@PathVariable long cardId) {
         return cardService.findById(cardId);
+    }
+    //need to check for topicId and diffeculty
+    @PostMapping("/cards")
+    public Card save(@RequestBody Card card){
+        return cardService.save(card);
     }
 
 }

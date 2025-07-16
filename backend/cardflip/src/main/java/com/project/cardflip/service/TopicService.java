@@ -8,8 +8,9 @@ import java.util.List;
 @Service
 public interface TopicService {
 
-   // Topic createTopic(Topic topic);
-   // Topic updateTopic(Topic topic);
+
     Topic getTopicById(Long id);
     List<Topic> getTopics();
+    Topic saveTopic(Topic topic);
+
 }

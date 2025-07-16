@@ -30,12 +30,18 @@ public class CardServiceImpl implements CardService {
         }else{
             throw new EntityNotFoundException("Card not found at id = " + id);
         }
-
-
     }
 
     @Override
     public List<Card> findAll() {
         return cardRepository.findAll();
+    }
+
+    @Override
+    public Card save(Card card) {
+        if(!topicRepository.existsById(card.getTopicId())) {
+            throw new EntityNotFoundException("Topic not found");
+        }
+        return cardRepository.save(card);
     }
 }

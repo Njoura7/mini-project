@@ -3,10 +3,7 @@ package com.project.cardflip.rest;
 import com.project.cardflip.entity.Topic;
 import com.project.cardflip.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,6 +26,11 @@ public class TopicRestController {
     @GetMapping("/topics/{topicId}")
     public Topic getTopic(@PathVariable long topicId){
         return topicService.getTopicById(topicId);
+    }
+
+    @PostMapping("/topics")
+    public Topic saveTopic(@RequestBody Topic topic) {
+        return topicService.saveTopic(topic);
     }
 
 }
