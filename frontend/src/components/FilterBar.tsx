@@ -18,7 +18,7 @@ import { FilterList, AddCircleOutline } from '@mui/icons-material';
 import { useState } from 'react';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { useTopics } from '@/hooks/queries';
-import { useCreateTopic, useDeleteTopic } from '@/hooks/mutations';
+import { useCreateTopic } from '@/hooks/mutations';
 
 interface FilterBarProps {
   selectedTopic: string;
@@ -31,10 +31,9 @@ export default function FilterBar({
   onTopicChange,
   flashcardCount,
 }: FilterBarProps) {
-  //Tansquery
+  // Tanstack Query
   const { data: topics = [] } = useTopics();
   const { mutate: createTopic } = useCreateTopic();
-  const { mutate: deleteTopic } = useDeleteTopic();
 
   const [newTopicName, setNewTopicName] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -54,53 +53,48 @@ export default function FilterBar({
   };
 
   return (
-    <Box
-      sx={{
-        mb: 3,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        flexWrap: 'wrap',
-      }}
-    >
-      <FormControl sx={{ minWidth: 200 }}>
-        <InputLabel>Filter by Topic</InputLabel>
-        <Select
-          value={selectedTopic}
-          label='Filter by Topic'
-          onChange={handleChange}
-        >
-          <MenuItem value='All'>All Topics</MenuItem>
-          {topics.map((topic) => (
-            <MenuItem key={topic.id} value={String(topic.id)}>
-              {topic.name}
-              <Button
-                color='error'
-                size='small'
-                onClick={() => deleteTopic(topic.id)}
-              >
-                Delete
-              </Button>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <Chip
-        icon={<FilterList />}
-        label={`${flashcardCount} cards`}
-        variant='outlined'
-      />
-
-      <Button
-        variant='outlined'
-        startIcon={<AddCircleOutline />}
-        onClick={() => setDialogOpen(true)}
+    <Box sx={{ mb: 3 }}>
+      {/* Filter Controls */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          flexWrap: 'wrap',
+        }}
       >
-        Add Topic
-      </Button>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Filter by Topic</InputLabel>
+          <Select
+            value={selectedTopic}
+            label='Filter by Topic'
+            onChange={handleChange}
+          >
+            <MenuItem value='All'>All Topics</MenuItem>
+            {topics.map((topic) => (
+              <MenuItem key={topic.id} value={String(topic.id)}>
+                {topic.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      {/* Dialog for new topic */}
+        <Chip
+          icon={<FilterList />}
+          label={`${flashcardCount} cards`}
+          variant='outlined'
+        />
+
+        <Button
+          variant='outlined'
+          startIcon={<AddCircleOutline />}
+          onClick={() => setDialogOpen(true)}
+        >
+          Add Topic
+        </Button>
+      </Box>
+
+      {/* Create Topic Dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>Add a New Topic</DialogTitle>
         <DialogContent>
@@ -109,6 +103,7 @@ export default function FilterBar({
             label='Topic Name'
             value={newTopicName}
             onChange={(e) => setNewTopicName(e.target.value)}
+            sx={{ mt: 1 }}
           />
         </DialogContent>
         <DialogActions>

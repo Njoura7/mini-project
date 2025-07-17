@@ -15,6 +15,7 @@ import Header from '@/components/Header';
 import FlashcardTable from '@/components/FlashcardTable';
 import CreateFlashcardModal from '@/components/CreateFlashcardModal';
 import FilterBar from '@/components/FilterBar';
+import TopicManager from '@/components/TopicManager';
 import type { Flashcard } from '@/types/flashcard';
 
 export default function App() {
@@ -24,13 +25,6 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState('All');
-
-  // const topics = useMemo(() => {
-  //   const unique = [
-  //     ...new Set(flashcards.map((card) => card.topicId.toString())),
-  //   ];
-  //   return unique.sort();
-  // }, [flashcards]);
 
   const filteredFlashcards = useMemo(() => {
     if (selectedTopic === 'All') return flashcards;
@@ -48,13 +42,13 @@ export default function App() {
     console.log('Flashcard clicked:', flashcard);
   };
 
-  // if (isPending) {
-  //   return <span>Loading...</span>;
-  // }
+  if (isPending) {
+    return <span>Loading...</span>;
+  }
 
-  // if (isError) {
-  //   return <span>Error: {error.message}</span>;
-  // }
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -91,6 +85,10 @@ export default function App() {
             selectedTopic={selectedTopic}
             onTopicChange={setSelectedTopic}
             flashcardCount={filteredFlashcards.length}
+          />
+          <TopicManager
+            selectedTopic={selectedTopic}
+            onTopicChange={setSelectedTopic}
           />
           <FlashcardTable
             flashcards={filteredFlashcards}
