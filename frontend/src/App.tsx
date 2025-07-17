@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Flashcard } from '@/types/flashcard';
-import flashcardsData from '@/data/flashcards.json';
+import { useFlashcards } from '@/hooks/queries';
 import {
   Container,
   Typography,
@@ -14,68 +13,56 @@ import {
 import { AddBoxRounded as AddFlashCard } from '@mui/icons-material';
 import Header from '@/components/Header';
 import FlashcardTable from '@/components/FlashcardTable';
-import CreateFlashcardModal from './components/CreateFlashcardModal';
-import EditFlashcardModal from './components/EditFlashcardModal';
-import FilterBar from './components/FilterBar';
+import CreateFlashcardModal from '@/components/CreateFlashcardModal';
+import FilterBar from '@/components/FilterBar';
+import type { Flashcard } from '@/types/flashcard';
+
 export default function App() {
+  //TODO:  FIXME: to be implemented soon
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: flashcards = [], isPending, error, isError } = useFlashcards();
   const [darkMode, setDarkMode] = useState(false);
-  // Modal
-  const [flashcards, setFlashcards] = useState<Flashcard[]>(flashcardsData);
-  const [selectedFlashcard, setSelectedFlashcard] = useState<Flashcard | null>(
-    null
-  );
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState('All');
 
-  const topics = useMemo(() => {
-    const uniqueTopics = [...new Set(flashcards.map((card) => card.topic))];
-    return uniqueTopics.sort();
-  }, [flashcards]);
+  // const topics = useMemo(() => {
+  //   const unique = [
+  //     ...new Set(flashcards.map((card) => card.topicId.toString())),
+  //   ];
+  //   return unique.sort();
+  // }, [flashcards]);
 
   const filteredFlashcards = useMemo(() => {
-    if (selectedTopic === 'All') {
-      return flashcards;
-    }
-    return flashcards.filter((card) => card.topic === selectedTopic);
+    if (selectedTopic === 'All') return flashcards;
+    return flashcards.filter(
+      (card) => card.topicId.toString() === selectedTopic
+    );
   }, [flashcards, selectedTopic]);
 
-  const handleModalClose = () => {
-    setEditModalOpen(false);
-    setSelectedFlashcard(null);
-  };
-
-  const handleSaveFlashcard = (updatedCard: Flashcard) => {
-    setFlashcards((prev) =>
-      prev.map((card) => (card.id === updatedCard.id ? updatedCard : card))
-    );
-    setSelectedFlashcard(updatedCard);
-  };
-
   const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: darkMode ? 'dark' : 'light',
-        },
-      }),
+    () => createTheme({ palette: { mode: darkMode ? 'dark' : 'light' } }),
     [darkMode]
   );
 
   const handleRowClick = (flashcard: Flashcard) => {
     console.log('Flashcard clicked:', flashcard);
-    setSelectedFlashcard(flashcard);
-    setEditModalOpen(true);
   };
 
-  const handleThemeToggle = () => {
-    setDarkMode((prev) => !prev);
-  };
+  // if (isPending) {
+  //   return <span>Loading...</span>;
+  // }
+
+  // if (isError) {
+  //   return <span>Error: {error.message}</span>;
+  // }
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Header darkMode={darkMode} onThemeToggle={handleThemeToggle} />
+      <Header
+        darkMode={darkMode}
+        onThemeToggle={() => setDarkMode((prev) => !prev)}
+      />
 
       <Container maxWidth='lg' sx={{ py: 4 }}>
         <Box sx={{ mb: 4, textAlign: 'center' }}>
@@ -96,7 +83,6 @@ export default function App() {
           <CreateFlashcardModal
             open={createModalOpen}
             onClose={() => setCreateModalOpen(false)}
-            topics={topics}
           />
         </Box>
 
@@ -104,20 +90,12 @@ export default function App() {
           <FilterBar
             selectedTopic={selectedTopic}
             onTopicChange={setSelectedTopic}
-            topics={topics}
             flashcardCount={filteredFlashcards.length}
           />
           <FlashcardTable
             flashcards={filteredFlashcards}
             onRowClick={handleRowClick}
             darkMode={darkMode}
-          />
-          <EditFlashcardModal
-            open={editModalOpen}
-            onClose={handleModalClose}
-            flashcard={selectedFlashcard}
-            onSave={handleSaveFlashcard}
-            topics={topics}
           />
         </Paper>
       </Container>

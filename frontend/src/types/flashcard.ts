@@ -1,7 +1,7 @@
 export interface Flashcard {
-  id: string;
+  id: number;
   question: string;
   answer: string;
-  topic: string;
-  difficulty: string;
+  topicId: number;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
 }

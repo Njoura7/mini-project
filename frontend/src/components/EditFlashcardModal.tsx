@@ -96,7 +96,7 @@ export default function FlashcardModal({
           <Typography variant='h6'>
             {isEditing ? 'Edit Flashcard' : 'Flashcard'}
           </Typography>
-          <Chip label={flashcard.topic} size='small' />
+          <Chip label={flashcard.topicId} size='small' />
           <Chip
             label={flashcard.difficulty}
             color={getDifficultyColor(flashcard.difficulty)}
@@ -160,7 +160,7 @@ export default function FlashcardModal({
               <FormControl sx={{ minWidth: 120 }}>
                 <InputLabel>Topic</InputLabel>
                 <Select
-                  value={editedCard?.topic || ''}
+                  value={editedCard?.topicId || ''}
                   label='Topic'
                   onChange={(e) =>
                     setEditedCard((prev) =>
