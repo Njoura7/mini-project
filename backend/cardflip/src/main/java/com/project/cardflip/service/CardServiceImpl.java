@@ -59,12 +59,6 @@ public class CardServiceImpl implements CardService {
         return card.get().getId();
     }
 
-// not yet implemented !!
-    @Override
-    public List<Card> findAllByTopicId(long id) {
-        if(!topicRepository.existsById(id)) {
-            throw new ApiException( HttpStatus.NOT_FOUND, "Topic not found");
-        }
-        return cardRepository.findByTopicId(id);
-    }
+
+
 }

@@ -12,7 +12,5 @@ public interface CardService {
     List<Card> findAll();
     Card save(Card card);
     long delete(long id);
-    List<Card> findAllByTopicId(long id);
 
-//    int deleteByTopic(Long topicId);
 }
