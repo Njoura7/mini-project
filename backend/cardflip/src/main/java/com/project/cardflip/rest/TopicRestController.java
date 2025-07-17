@@ -6,6 +6,7 @@ import com.project.cardflip.entity.Card;
 import com.project.cardflip.entity.Topic;
 import com.project.cardflip.exceptions.ApiException;
 import com.project.cardflip.service.TopicService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class TopicRestController {
     }
 
     @PostMapping("/topics")
-    public Topic saveTopic(@RequestBody Topic topic) {
+    public Topic saveTopic(@Valid @RequestBody Topic topic) {
         return topicService.save(topic);
     }
 

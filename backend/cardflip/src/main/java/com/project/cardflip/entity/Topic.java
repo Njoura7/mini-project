@@ -1,6 +1,7 @@
 package com.project.cardflip.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="topic")
@@ -12,6 +13,7 @@ public class Topic {
     private long id;
 
     @Column(name ="name")
+    @NotNull
     private String Name;
 
     public Topic(String name) {

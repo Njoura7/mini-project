@@ -49,14 +49,14 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public long delete(long id) {
+    public void delete(long id) {
         Optional<Card > card = cardRepository.findById(id);
         if(!card.isPresent()) {
             throw new ApiException(HttpStatus.NOT_FOUND,
                     "Card not found with id " + id + ", unable to delete");
         }
         cardRepository.deleteById(id);
-        return card.get().getId();
+
     }
 
 

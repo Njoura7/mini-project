@@ -11,6 +11,6 @@ public interface CardService {
     Card findById(long id);
     List<Card> findAll();
     Card save(Card card);
-    long delete(long id);
+    void delete(long id);
 
 }

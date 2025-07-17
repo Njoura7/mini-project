@@ -8,9 +8,11 @@ import com.project.cardflip.entity.Card;
 import com.project.cardflip.exceptions.ApiException;
 import com.project.cardflip.service.CardService;
 import com.project.cardflip.service.TopicService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,25 +39,17 @@ public class CardRestController {
     public Card findById(@PathVariable long cardId) {
         return cardService.findById(cardId);
     }
-    //need to check for topicId and diffeculty
+
     @PostMapping("/cards")
-    public Card save(@RequestBody Card card){
+    public Card save(@Valid @RequestBody Card card){
         return cardService.save(card);
     }
 
     @DeleteMapping("/cards/{cardId}")
-    public long delete(@PathVariable long cardId){
-       return  cardService.delete(cardId);
+    public ResponseEntity<?> delete(@PathVariable long cardId){
+        cardService.delete(cardId);
+        return ResponseEntity.noContent().build();
     }
-
-    /*
-    @PatchMapping("/cards/{cardId}")
-    public Card update(@PathVariable long cardId, @RequestBody Card card) throws JsonMappingException {
-        Card cardToUpdate = cardService.findById(cardId);
-        objectMapper.updateValue(cardToUpdate,card);
-        cardService.save(cardToUpdate);
-        return cardToUpdate;
-    }*/
 
     @PatchMapping("/cards/{id}")
     public Card update(@RequestBody Map<String, Object> patchPayload, @PathVariable Long id) {
