@@ -78,7 +78,11 @@ export default function FlashcardTable({
         <IconButton
           aria-label='delete'
           color='error'
-          onClick={() => deleteCard(params.value)}
+          onClick={() => {
+            if (confirm('Are you sure you want to delete this flashcard?')) {
+              deleteCard(params.value);
+            }
+          }}
         >
           <DeleteIcon />
         </IconButton>

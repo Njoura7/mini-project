@@ -14,3 +14,8 @@ export const createTopic = async (name: string): Promise<Topic> => {
   const res = await axiosClient.post('/topics', { name });
   return res.data;
 };
+
+// Delete a topic
+export const deleteTopic = async (id: number) => {
+  await axiosClient.delete(`/cards/${id}`);
+};
