@@ -46,7 +46,7 @@ public class TopicServiceImpl implements TopicService {
 
 
     @Override
-    public long delete(long id)
+    public void delete(long id)
     {
         Optional<Topic> topic = topicRepository.findById(id);
         if (!topic.isPresent()) {
@@ -57,7 +57,7 @@ public class TopicServiceImpl implements TopicService {
         deleteAllCards(id);
         topicRepository.deleteById(id);
 
-        return topic.get().getId();
+
     }
 
     private void deleteAllCards(long topicId){

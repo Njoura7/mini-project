@@ -8,6 +8,7 @@ import com.project.cardflip.exceptions.ApiException;
 import com.project.cardflip.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,8 +44,9 @@ public class TopicRestController {
     }
 
     @DeleteMapping("/topics/{topicId}")
-    public long deleteTopic(@PathVariable long topicId) {
-        return topicService.delete(topicId);
+    public ResponseEntity<?> deleteTopic(@PathVariable long topicId) {
+         topicService.delete(topicId);
+         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/topics/{topicId}")

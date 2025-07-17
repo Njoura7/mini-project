@@ -12,6 +12,6 @@ public interface TopicService {
     Topic getById(Long id);
     List<Topic> getTopics();
     Topic save(Topic topic);
-    long delete(long id);
+    void delete(long id);
 
 }
