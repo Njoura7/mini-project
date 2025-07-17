@@ -23,6 +23,15 @@ spring.datasource.password=${DB_PASSWORD}
 ```
 
 
+**to run the application**
+```
+cd backend/cardflip
+./mvnw spring-boot:run
+```
+
+
+
+
 
 
 
