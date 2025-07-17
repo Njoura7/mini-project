@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Flashcard } from '@/types/flashcard';
 //APIs
 import { createFlashcard, deleteFlashcard } from '@/api/flashcards';
-import { createTopic } from '@/api/topics';
+import { createTopic, deleteTopic } from '@/api/topics';
 
 export function useCreateFlashcard() {
   const queryClient = useQueryClient();
@@ -41,7 +41,7 @@ export function useDeleteTopic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteFlashcard(id),
+    mutationFn: (id: number) => deleteTopic(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['topics'] });
     },
