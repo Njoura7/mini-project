@@ -18,7 +18,7 @@ import { FilterList, AddCircleOutline } from '@mui/icons-material';
 import { useState } from 'react';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { useTopics } from '@/hooks/queries';
-import { useCreateTopic } from '@/hooks/mutations';
+import { useCreateTopic, useDeleteTopic } from '@/hooks/mutations';
 
 interface FilterBarProps {
   selectedTopic: string;
@@ -31,8 +31,10 @@ export default function FilterBar({
   onTopicChange,
   flashcardCount,
 }: FilterBarProps) {
+  //Tansquery
   const { data: topics = [] } = useTopics();
   const { mutate: createTopic } = useCreateTopic();
+  const { mutate: deleteTopic } = useDeleteTopic();
 
   const [newTopicName, setNewTopicName] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -72,6 +74,13 @@ export default function FilterBar({
           {topics.map((topic) => (
             <MenuItem key={topic.id} value={String(topic.id)}>
               {topic.name}
+              <Button
+                color='error'
+                size='small'
+                onClick={() => deleteTopic(topic.id)}
+              >
+                Delete
+              </Button>
             </MenuItem>
           ))}
         </Select>

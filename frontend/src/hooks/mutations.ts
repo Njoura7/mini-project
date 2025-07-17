@@ -36,3 +36,14 @@ export const useCreateTopic = () => {
     },
   });
 };
+
+export function useDeleteTopic() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => deleteFlashcard(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['topics'] });
+    },
+  });
+}
