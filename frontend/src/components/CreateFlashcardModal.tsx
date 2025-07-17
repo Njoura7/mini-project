@@ -10,23 +10,19 @@ import {
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import type { Flashcard } from '@/types/flashcard';
+import { useCreateFlashcard } from '@/hooks/mutations';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (card: Flashcard) => void;
   topics: string[];
 }
 
-export default function CreateFlashcardModal({
-  open,
-  onClose,
-  onSave,
-  topics,
-}: Props) {
-  const { register, handleSubmit, reset } = useForm<Flashcard>();
+export default function CreateFlashcardModal({ open, onClose, topics }: Props) {
+  const { register, handleSubmit, reset } = useForm<Omit<Flashcard, 'id'>>();
 
-  // Update default values when the modal opens or when topics change
+  const { mutate, isPending } = useCreateFlashcard();
+
   useEffect(() => {
     if (open) {
       reset({
@@ -39,10 +35,13 @@ export default function CreateFlashcardModal({
   }, [open, topics, reset]);
 
   const onSubmit = (data: Omit<Flashcard, 'id'>) => {
-    onSave({ ...data, id: `${Date.now()}` });
-    console.table(data);
-    reset(); // Clear the form
-    onClose();
+    mutate(data, {
+      onSuccess: () => {
+        console.table(data);
+        reset();
+        onClose();
+      },
+    });
   };
 
   return (
@@ -51,18 +50,21 @@ export default function CreateFlashcardModal({
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <TextField
+            id='question'
             label='Question'
             fullWidth
             margin='normal'
             {...register('question')}
           />
           <TextField
+            id='answer'
             label='Answer'
             fullWidth
             margin='normal'
             {...register('answer')}
           />
           <TextField
+            id='topic'
             select
             label='Topic'
             fullWidth
@@ -77,6 +79,7 @@ export default function CreateFlashcardModal({
             ))}
           </TextField>
           <TextField
+            id='difficulty'
             select
             label='Difficulty'
             fullWidth
@@ -94,8 +97,12 @@ export default function CreateFlashcardModal({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='contained' onClick={handleSubmit(onSubmit)}>
-          Save
+        <Button
+          variant='contained'
+          onClick={handleSubmit(onSubmit)}
+          disabled={isPending}
+        >
+          {isPending ? 'Saving...' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>

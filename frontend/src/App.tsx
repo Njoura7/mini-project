@@ -96,7 +96,6 @@ export default function App() {
           <CreateFlashcardModal
             open={createModalOpen}
             onClose={() => setCreateModalOpen(false)}
-            onSave={(newCard) => setFlashcards((prev) => [...prev, newCard])}
             topics={topics}
           />
         </Box>
