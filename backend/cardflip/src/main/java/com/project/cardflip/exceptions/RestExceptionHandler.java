@@ -1,8 +1,11 @@
 package com.project.cardflip.exceptions;
 
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -20,6 +23,22 @@ public class RestExceptionHandler {
                     System.currentTimeMillis()) ,
                 exception.getStatus());
 
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidEnum(HttpMessageNotReadableException exception) {
+        ErrorResponse error = new ErrorResponse(
+                "Invalid input -> " + exception.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    //can be thrown in PATCH
+    @ExceptionHandler(JsonMappingException.class)
+    public ResponseEntity<String> handleJsonMapping(JsonMappingException ex) {
+        return new ResponseEntity<>("Invalid JSON input: " + ex.getOriginalMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
