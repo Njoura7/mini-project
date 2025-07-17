@@ -1,5 +1,5 @@
 export interface Flashcard {
-  id: number;
+  id: string;
   question: string;
   answer: string;
   topic: string;

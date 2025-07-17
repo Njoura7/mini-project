@@ -105,7 +105,7 @@ export default function FlashcardTable({
           rowHeight={60}
           headerHeight={70}
           animateRows
-          rowSelection='single'
+          rowSelection={{ mode: 'singleRow' }}
           theme='legacy'
         />
       </div>
