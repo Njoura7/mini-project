@@ -1,5 +1,6 @@
 package com.project.cardflip.entity;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,14 +12,16 @@ public class Card {
     private long id;
 
     @Column(name="question")
+    //@JsonMerge
     private String question;
 
     @Column(name="answer")
+    //@JsonMerge
     private String answer;
-
+    //@JsonMerge
     @Column(name="topicId")
     private long topicId;
-
+    //@JsonMerge
     @Column(name="difficulty")
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;

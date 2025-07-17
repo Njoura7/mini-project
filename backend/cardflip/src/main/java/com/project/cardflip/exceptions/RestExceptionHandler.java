@@ -1,6 +1,7 @@
 package com.project.cardflip.exceptions;
 
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,12 @@ public class RestExceptionHandler {
                 System.currentTimeMillis()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    //can be thrown in PATCH
+    @ExceptionHandler(JsonMappingException.class)
+    public ResponseEntity<String> handleJsonMapping(JsonMappingException ex) {
+        return new ResponseEntity<>("Invalid JSON input: " + ex.getOriginalMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
