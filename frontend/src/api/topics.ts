@@ -17,5 +17,5 @@ export const createTopic = async (name: string): Promise<Topic> => {
 
 // Delete a topic
 export const deleteTopic = async (id: number) => {
-  await axiosClient.delete(`/cards/${id}`);
+  await axiosClient.delete(`/topics/${id}`);
 };
