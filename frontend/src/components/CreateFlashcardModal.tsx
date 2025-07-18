@@ -1,18 +1,21 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
-  TextField,
   DialogActions,
   Button,
-  MenuItem,
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import type { Flashcard } from '@/types/flashcard';
+import { Save, Cancel } from '@mui/icons-material';
 import { useCreateFlashcard } from '@/hooks/mutations';
 import { useTopics } from '@/hooks/queries';
+import {
+  flashcardCreateSchema,
+  type FlashcardCreateFormData,
+} from '@/schemas/flashcard';
+import CreateFlashcardForm from './CreateFlashcardForm';
 
 interface Props {
   open: boolean;
@@ -20,89 +23,68 @@ interface Props {
 }
 
 export default function CreateFlashcardModal({ open, onClose }: Props) {
-  const { register, handleSubmit, reset } = useForm<Omit<Flashcard, 'id'>>();
+  const [formData, setFormData] = useState<FlashcardCreateFormData | null>(
+    null
+  );
+  const [isFormValid, setIsFormValid] = useState(false);
+
   const { mutate, isPending } = useCreateFlashcard();
   const { data: topics, isLoading, isError } = useTopics();
 
-  const onSubmit = (data: Omit<Flashcard, 'id'>) => {
-    mutate(
-      {
-        question: data.question,
-        answer: data.answer,
-        difficulty: data.difficulty.toUpperCase() as Flashcard['difficulty'],
-        topicId: parseInt(data.topicId as unknown as string, 10),
-      },
-      {
-        onSuccess: () => {
-          reset();
-          onClose();
-        },
+  const handleClose = () => {
+    setFormData(null);
+    setIsFormValid(false);
+    onClose();
+  };
+
+  const handleSave = () => {
+    if (formData && isFormValid) {
+      try {
+        const validatedData = flashcardCreateSchema.parse(formData);
+        mutate(validatedData, {
+          onSuccess: () => {
+            handleClose();
+          },
+        });
+      } catch (error) {
+        console.error('Validation failed:', error);
       }
-    );
+    }
+  };
+
+  const handleFormDataChange = (
+    data: FlashcardCreateFormData,
+    isValid: boolean
+  ) => {
+    setFormData(data);
+    setIsFormValid(isValid);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth='md' fullWidth>
       <DialogTitle>Create Flashcard</DialogTitle>
-      <DialogContent>
+
+      <DialogContent sx={{ minHeight: '400px' }}>
         {isLoading && <CircularProgress />}
         {isError && <Alert severity='error'>Failed to load topics</Alert>}
 
         {!isLoading && topics && (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              id='question'
-              label='Question'
-              fullWidth
-              margin='normal'
-              {...register('question')}
-            />
-            <TextField
-              id='answer'
-              label='Answer'
-              fullWidth
-              margin='normal'
-              {...register('answer')}
-            />
-            <TextField
-              id='topic'
-              select
-              label='Topic'
-              fullWidth
-              margin='normal'
-              defaultValue=''
-              {...register('topicId')}
-            >
-              {topics.map((t) => (
-                <MenuItem key={t.id} value={t.id}>
-                  {t.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              id='difficulty'
-              select
-              label='Difficulty'
-              fullWidth
-              margin='normal'
-              defaultValue='Easy'
-              {...register('difficulty')}
-            >
-              {['Easy', 'Medium', 'Hard'].map((d) => (
-                <MenuItem key={d} value={d}>
-                  {d}
-                </MenuItem>
-              ))}
-            </TextField>
-          </form>
+          <CreateFlashcardForm
+            topics={topics}
+            onFormDataChange={handleFormDataChange}
+          />
         )}
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleClose} startIcon={<Cancel />}>
+          Cancel
+        </Button>
         <Button
+          onClick={handleSave}
           variant='contained'
-          onClick={handleSubmit(onSubmit)}
-          disabled={isPending || isLoading}
+          startIcon={<Save />}
+          disabled={!isFormValid || isPending}
         >
           {isPending ? 'Saving...' : 'Save'}
         </Button>
