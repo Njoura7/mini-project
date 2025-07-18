@@ -47,13 +47,41 @@
   transform: rotateY(180deg);
 }
 
-/* Override ag-grid variables for dark mode */
+/* ✅ Hover effect for light mode */
+.ag-theme-material .ag-row-hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ✅ Selected row for light mode */
+.ag-theme-material .ag-row-selected {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ✅ Dark mode overrides */
 .ag-theme-material.dark-mode {
-  --ag-background-color: #1e1e1e;
-  --ag-header-background-color: #2b2b2b;
-  --ag-odd-row-background-color: #1e1e1e;
-  --ag-foreground-color: #ffffff;
-  --ag-header-foreground-color: #ffffff;
-  --ag-border-color: #444;
+  --ag-background-color: #121212;
+  --ag-header-background-color: #1e1e1e;
+  --ag-odd-row-background-color: #181818;
+  --ag-foreground-color: #e0e0e0;
+  --ag-header-foreground-color: #f5f5f5;
+  --ag-border-color: #333;
   --ag-row-hover-color: #2a2a2a;
+  --ag-selected-row-background-color: #2c2c2c;
+}
+
+/* ✅ Dark mode row hover/selected */
+.ag-theme-material.dark-mode .ag-row-hover {
+  background-color: var(--ag-row-hover-color) !important;
+}
+.ag-theme-material.dark-mode .ag-row-selected {
+  background-color: var(--ag-selected-row-background-color) !important;
+}
+
+/* ✅ Prevent dark mode header hover turning white */
+.ag-theme-material.dark-mode .ag-header-cell:hover {
+  background-color: var(--ag-header-background-color) !important;
+}
+
+.ag-theme-material .ag-row {
+  transition: background-color 0.2s ease-in-out;
 }
