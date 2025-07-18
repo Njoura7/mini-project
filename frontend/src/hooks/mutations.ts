@@ -59,6 +59,9 @@ export function useDeleteTopic() {
     mutationFn: (id: number) => deleteTopic(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['topics'] });
+      // TODO: learn more about useQuery functionalities (the queryKey has some built in features,
+      // for instance adding this line provoke the deletion of related flashcards to certain topic)
+      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
     },
   });
 }

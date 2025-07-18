@@ -9,12 +9,12 @@ const difficultyEnum = z
 const commonFlashcardFields = {
   question: z
     .string()
-    .min(8, 'Question should have at least 8 characters')
+    .min(5, 'Question should have at least 5 characters')
     .max(255, 'Question cannot exceed 255 characters')
     .refine((val) => val.trim().endsWith('?'), 'Question must end with a "?"'),
   answer: z
     .string()
-    .min(2, 'Answer should have at least two characters')
+    .min(1, 'Answer should have at least one characters')
     .max(255, 'Answer cannot exceed 255 characters'),
   difficulty: difficultyEnum,
 };

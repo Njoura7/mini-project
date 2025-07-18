@@ -1,4 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
+import type { Flashcard } from '@/types/flashcard';
+import type { Topic } from '@/types/topic';
 import { AgGridReact } from 'ag-grid-react';
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import type {
@@ -7,80 +9,77 @@ import type {
   RowClickedEvent,
   ICellRendererParams,
 } from 'ag-grid-community';
-import { themeQuartz } from 'ag-grid-community';
-import {
-  Box,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Alert,
-  AlertTitle,
-} from '@mui/material';
-import WarningIcon from '@mui/icons-material/Warning';
-
-import type { Flashcard } from '@/types/flashcard';
-import { useDeleteFlashcard, useUpdateFlashcard } from '@/hooks/mutations';
-import { useTopics } from '@/hooks/queries';
-import DeleteButton from './DeleteButton';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-material.css';
+import { Box, Chip } from '@mui/material';
+import { DeleteFlashcardDialog } from './DeleteFlashcardDialog';
+import { FlashcardActionsCell } from './FlashcardActionsCell';
 import EditFlashcardModal from './EditFlashcardModal';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-const theme = themeQuartz
-  .withParams(
-    {
-      backgroundColor: '#FFE8E0',
-      foregroundColor: '#361008CC',
-      browserColorScheme: 'light',
-    },
-    'light-red'
-  )
-  .withParams(
-    {
-      backgroundColor: '#201008',
-      foregroundColor: '#FFFFFFCC',
-      browserColorScheme: 'dark',
-    },
-    'dark-red'
-  );
 
 interface FlashcardTableProps {
   flashcards: Flashcard[];
-  onRowClick: (flashcard: Flashcard) => void;
+  topics: Topic[];
+  isLoading: boolean;
   darkMode: boolean;
+  onRowClick: (flashcard: Flashcard) => void;
+  onDeleteFlashcard: (id: number) => void;
+  onUpdateFlashcard: (flashcard: Flashcard) => void;
+  isDeleting?: boolean;
+  isUpdating?: boolean;
 }
 
 export default function FlashcardTable({
   flashcards,
-  onRowClick,
+  topics,
+  isLoading,
   darkMode,
+  onRowClick,
+  onDeleteFlashcard,
+  onUpdateFlashcard,
+  isDeleting = false,
+  isUpdating = false,
 }: FlashcardTableProps) {
-  const { data: topics, isLoading: topicsLoading } = useTopics();
-  const { mutate: deleteCard, isPending: isDeleting } = useDeleteFlashcard();
-  const { mutate: updateCard } = useUpdateFlashcard();
-
+  // State
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [flashcardToDelete, setFlashcardToDelete] = useState<{
     id: number;
     question: string;
   } | null>(null);
-
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [flashcardToEdit, setFlashcardToEdit] = useState<Flashcard | null>(
     null
   );
 
+  // Grid theme configuration
+  const gridThemeConfig = useMemo(
+    () => ({
+      height: '100%',
+      width: '100%',
+      backgroundColor: darkMode ? '#121212' : '#fff',
+      color: darkMode ? '#e0e0e0' : '#000',
+    }),
+    [darkMode]
+  );
+
+  // Memoized mappings and configurations
   const topicIdToName = useMemo(() => {
-    const map: Record<number, string> = {};
-    topics?.forEach((topic) => {
+    return topics.reduce<Record<number, string>>((map, topic) => {
       map[topic.id] = topic.name;
-    });
-    return map;
+      return map;
+    }, {});
   }, [topics]);
 
+  const difficultyColorMap = useMemo(() => {
+    return {
+      EASY: 'success',
+      MEDIUM: 'warning',
+      HARD: 'error',
+    } as const;
+  }, []);
+
+  // Handlers
   const handleDeleteClick = useCallback(
     (flashcard: { id: number; question: string }) => {
       setFlashcardToDelete(flashcard);
@@ -91,47 +90,61 @@ export default function FlashcardTable({
 
   const handleConfirmDelete = useCallback(() => {
     if (flashcardToDelete) {
-      deleteCard(flashcardToDelete.id, {
-        onSuccess: () => {
-          setDeleteDialogOpen(false);
-          setFlashcardToDelete(null);
-        },
-        onError: (error) => {
-          console.error('Failed to delete flashcard:', error);
-        },
-      });
+      onDeleteFlashcard(flashcardToDelete.id);
+      setDeleteDialogOpen(false);
+      setFlashcardToDelete(null);
     }
-  }, [flashcardToDelete, deleteCard]);
+  }, [flashcardToDelete, onDeleteFlashcard]);
 
-  const handleCancelDelete = () => {
+  const handleCancelDelete = useCallback(() => {
     setDeleteDialogOpen(false);
     setFlashcardToDelete(null);
-  };
+  }, []);
 
-  const handleEditFlashcard = (flashcard: Flashcard) => {
+  const handleEditFlashcard = useCallback((flashcard: Flashcard) => {
     setFlashcardToEdit(flashcard);
     setEditModalOpen(true);
-  };
+  }, []);
 
   const handleSaveFlashcard = useCallback(
     (updatedFlashcard: Flashcard) => {
-      updateCard(updatedFlashcard, {
-        onSuccess: () => {
-          setEditModalOpen(false);
-          setFlashcardToEdit(null);
-        },
-        onError: (error) => {
-          console.error('Failed to update flashcard:', error);
-        },
-      });
+      onUpdateFlashcard(updatedFlashcard);
+      setEditModalOpen(false);
+      setFlashcardToEdit(null);
     },
-    [updateCard]
+    [onUpdateFlashcard]
   );
 
-  const handleCloseEditModal = () => {
+  const handleCloseEditModal = useCallback(() => {
     setEditModalOpen(false);
     setFlashcardToEdit(null);
-  };
+  }, []);
+
+  const handleRowClick = useCallback(
+    (event: RowClickedEvent<Flashcard>) => {
+      const target = event.event?.target as HTMLElement;
+      if (target?.closest('[data-actions-cell]')) return;
+      if (event.data) {
+        onRowClick(event.data);
+        handleEditFlashcard(event.data);
+      }
+    },
+    [onRowClick, handleEditFlashcard]
+  );
+
+  const handleGridReady = useCallback((params: GridReadyEvent) => {
+    params.api.sizeColumnsToFit();
+  }, []);
+
+  // Column definitions
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      sortable: true,
+      filter: true,
+      resizable: true,
+    }),
+    []
+  );
 
   const columnDefs = useMemo<ColDef<Flashcard>[]>(
     () => [
@@ -147,7 +160,7 @@ export default function FlashcardTable({
         field: 'topicId',
         width: 140,
         cellRenderer: (params: ICellRendererParams<Flashcard>) => {
-          if (topicsLoading) {
+          if (isLoading) {
             return (
               <Chip
                 label='Loading...'
@@ -173,14 +186,6 @@ export default function FlashcardTable({
         field: 'difficulty',
         width: 140,
         cellRenderer: (params: ICellRendererParams<Flashcard>) => {
-          const difficultyColorMap: Record<
-            Flashcard['difficulty'],
-            'success' | 'warning' | 'error'
-          > = {
-            EASY: 'success',
-            MEDIUM: 'warning',
-            HARD: 'error',
-          };
           const color =
             difficultyColorMap[params.value as Flashcard['difficulty']];
           return <Chip label={params.value} color={color} size='small' />;
@@ -188,48 +193,19 @@ export default function FlashcardTable({
       },
       {
         headerName: 'Actions',
-        // flex: 1,
-        cellRenderer: (params: ICellRendererParams<Flashcard>) => {
-          const flashcard = params.data as Flashcard;
-          return (
-            <div data-actions-cell onClick={(e) => e.stopPropagation()}>
-              <DeleteButton
-                flashcard={flashcard}
-                onDeleteClick={handleDeleteClick}
-              />
-            </div>
-          );
-        },
+        cellRenderer: (params: ICellRendererParams<Flashcard>) => (
+          <FlashcardActionsCell
+            flashcard={params.data!}
+            onDeleteClick={handleDeleteClick}
+          />
+        ),
       },
     ],
-    [topicIdToName, topicsLoading, handleDeleteClick]
+    [topicIdToName, isLoading, handleDeleteClick, difficultyColorMap]
   );
 
-  const defaultColDef: ColDef = {
-    sortable: true,
-    filter: true,
-    resizable: true,
-  };
-
-  const handleRowClick = useCallback(
-    (event: RowClickedEvent<Flashcard>) => {
-      const target = event.event?.target as HTMLElement;
-      if (target && target.closest('[data-actions-cell]')) {
-        return;
-      }
-      if (event.data) {
-        onRowClick(event.data);
-        handleEditFlashcard(event.data);
-      }
-    },
-    [onRowClick]
-  );
-
-  const handleGridReady = (params: GridReadyEvent) => {
-    params.api.sizeColumnsToFit();
-  };
-
-  if (topicsLoading) {
+  // Loading state
+  if (isLoading) {
     return (
       <Box
         sx={{
@@ -247,10 +223,7 @@ export default function FlashcardTable({
 
   return (
     <Box sx={{ height: '600px', width: '100%' }}>
-      <div
-        className={darkMode ? 'ag-theme-material-dark' : 'ag-theme-material'}
-        style={{ height: '100%', width: '100%' }}
-      >
+      <div className='ag-theme-material' style={gridThemeConfig}>
         <AgGridReact
           rowData={flashcards}
           columnDefs={columnDefs}
@@ -263,73 +236,25 @@ export default function FlashcardTable({
           suppressClickEdit
           rowSelection='single'
           getRowId={(params) => params.data.id.toString()}
-          theme={theme}
+          theme='legacy'
         />
       </div>
 
-      <Dialog
+      <DeleteFlashcardDialog
         open={deleteDialogOpen}
-        onClose={handleCancelDelete}
-        maxWidth='sm'
-        fullWidth
-      >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <WarningIcon color='warning' />
-          Delete Flashcard
-        </DialogTitle>
-        <DialogContent>
-          <Alert severity='warning' sx={{ mb: 2 }}>
-            <AlertTitle>This action cannot be undone</AlertTitle>
-            You are about to permanently delete this flashcard from your
-            collection.
-          </Alert>
-
-          <Typography variant='body1' sx={{ mb: 1 }}>
-            Are you sure you want to delete this flashcard?
-          </Typography>
-
-          <Box
-            sx={{
-              p: 2,
-              backgroundColor: 'background.default',
-              borderRadius: 1,
-              border: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-              Question:
-            </Typography>
-            <Typography variant='body1' sx={{ fontWeight: 500 }}>
-              {flashcardToDelete?.question}
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, gap: 1 }}>
-          <Button
-            onClick={handleCancelDelete}
-            variant='outlined'
-            disabled={isDeleting}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            color='error'
-            variant='contained'
-            disabled={isDeleting}
-          >
-            {isDeleting ? 'Deleting...' : 'Delete Flashcard'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        flashcardToDelete={flashcardToDelete}
+        isDeleting={isDeleting}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+      />
 
       <EditFlashcardModal
         open={editModalOpen}
         onClose={handleCloseEditModal}
         flashcard={flashcardToEdit}
         onSave={handleSaveFlashcard}
-        topics={topics || []}
+        topics={topics}
+        isUpdating={isUpdating}
       />
     </Box>
   );

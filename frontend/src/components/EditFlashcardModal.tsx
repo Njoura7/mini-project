@@ -20,6 +20,7 @@ interface EditFlashcardModalProps {
   flashcard: Flashcard | null;
   onSave: (flashcard: Flashcard) => void;
   topics: Topic[];
+  isUpdating?: boolean;
 }
 
 export default function EditFlashcardModal({
