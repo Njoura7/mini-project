@@ -1,9 +1,5 @@
 import { axiosClient } from './axios';
-
-export interface Topic {
-  id: number;
-  name: string;
-}
+import type { Topic } from '@/types/topic';
 
 export const fetchTopics = async (): Promise<Topic[]> => {
   const res = await axiosClient.get('/topics');

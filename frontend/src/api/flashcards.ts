@@ -13,6 +13,13 @@ export const createFlashcard = async (data: Omit<Flashcard, 'id'>) => {
   return response.data;
 };
 
+// Update a card
+export const updateFlashcard = async (data: Flashcard) => {
+  const { id, ...updateData } = data;
+  const response = await axiosClient.patch(`/cards/${id}`, updateData);
+  return response.data;
+};
+
 // Delete a card
 export const deleteFlashcard = async (id: number) => {
   await axiosClient.delete(`/cards/${id}`);

@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { Flashcard } from '@/types/flashcard';
-import { useDeleteFlashcard } from '@/hooks/mutations';
+import { useDeleteFlashcard, useUpdateFlashcard } from '@/hooks/mutations';
 import { useTopics } from '@/hooks/queries';
 import type {
   ColDef,
@@ -27,6 +27,7 @@ import WarningIcon from '@mui/icons-material/Warning';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-material.css';
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+import EditFlashcardModal from './EditFlashcardModal'; // Your EditFlashcardModal component
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -45,6 +46,7 @@ export default function FlashcardTable({
   // Tanstack Query
   const { data: topics, isLoading: topicsLoading } = useTopics();
   const { mutate: deleteCard, isPending: isDeleting } = useDeleteFlashcard();
+  const { mutate: updateCard } = useUpdateFlashcard();
 
   // Delete confirmation state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -52,6 +54,12 @@ export default function FlashcardTable({
     id: number;
     question: string;
   } | null>(null);
+
+  // Edit flashcard state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [flashcardToEdit, setFlashcardToEdit] = useState<Flashcard | null>(
+    null
+  );
 
   // Create topic ID → name map
   const topicIdToName = useMemo(() => {
@@ -64,13 +72,50 @@ export default function FlashcardTable({
     return map;
   }, [topics]);
 
-  // Delete handlers
-  const handleDeleteClick = (flashcard: { id: number; question: string }) => {
-    setFlashcardToDelete(flashcard);
-    setDeleteDialogOpen(true);
-  };
+  // Delete handlers - wrapped in useCallback to prevent useMemo dependency issues
+  const handleDeleteClick = useCallback(
+    (flashcard: { id: number; question: string }) => {
+      setFlashcardToDelete(flashcard);
+      setDeleteDialogOpen(true);
+    },
+    []
+  );
 
-  const handleConfirmDelete = () => {
+  // Separate component for delete button to isolate events
+  const DeleteButton = useCallback(
+    ({ flashcard }: { flashcard: Flashcard }) => {
+      const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        handleDeleteClick({
+          id: flashcard.id,
+          question: flashcard.question,
+        });
+      };
+
+      return (
+        <IconButton
+          aria-label='delete flashcard'
+          color='error'
+          size='small'
+          onClick={handleClick}
+          sx={{
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              backgroundColor: 'error.light',
+              color: 'error.contrastText',
+              transform: 'scale(1.1)',
+            },
+          }}
+        >
+          <DeleteIcon fontSize='small' />
+        </IconButton>
+      );
+    },
+    [handleDeleteClick]
+  );
+
+  const handleConfirmDelete = useCallback(() => {
     if (flashcardToDelete) {
       deleteCard(flashcardToDelete.id, {
         onSuccess: () => {
@@ -83,14 +128,45 @@ export default function FlashcardTable({
         },
       });
     }
-  };
+  }, [flashcardToDelete, deleteCard]);
 
-  const handleCancelDelete = () => {
+  const handleCancelDelete = useCallback(() => {
     setDeleteDialogOpen(false);
     setFlashcardToDelete(null);
-  };
+  }, []);
 
-  // Column Definitions - recreate when topics change
+  // Edit handlers
+  const handleEditFlashcard = useCallback((flashcard: Flashcard) => {
+    setFlashcardToEdit(flashcard);
+    setEditModalOpen(true);
+  }, []);
+
+  const handleSaveFlashcard = useCallback(
+    (updatedFlashcard: Flashcard) => {
+      // Debug: Log what we're trying to update
+      console.log('Updating flashcard:', updatedFlashcard);
+
+      updateCard(updatedFlashcard, {
+        onSuccess: () => {
+          console.log('Update successful');
+          setEditModalOpen(false);
+          setFlashcardToEdit(null);
+        },
+        onError: (error) => {
+          console.error('Failed to update flashcard:', error);
+          // Keep modal open to show error state
+        },
+      });
+    },
+    [updateCard]
+  );
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditModalOpen(false);
+    setFlashcardToEdit(null);
+  }, []);
+
+  // Column Definitions - now handleDeleteClick is stable
   const columnDefs = useMemo<ColDef<Flashcard>[]>(
     () => [
       {
@@ -155,31 +231,11 @@ export default function FlashcardTable({
         field: 'id',
         width: 100,
         cellRenderer: (params: ICellRendererParams<Flashcard>) => (
-          <IconButton
-            aria-label='delete flashcard'
-            color='error'
-            size='small'
-            onClick={() => {
-              handleDeleteClick({
-                id: params.value,
-                question: params.data?.question || 'Unknown question',
-              });
-            }}
-            sx={{
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                backgroundColor: 'error.light',
-                color: 'error.contrastText',
-                transform: 'scale(1.1)',
-              },
-            }}
-          >
-            <DeleteIcon fontSize='small' />
-          </IconButton>
+          <DeleteButton flashcard={params.data!} />
         ),
       },
     ],
-    [topicIdToName, topicsLoading, handleDeleteClick]
+    [topicIdToName, topicsLoading, DeleteButton]
   );
 
   // Default Column Behavior
@@ -190,13 +246,19 @@ export default function FlashcardTable({
   };
 
   // Grid Events
-  const handleRowClick = (event: RowClickedEvent) => {
-    onRowClick(event.data);
-  };
+  const handleRowClick = useCallback(
+    (event: RowClickedEvent) => {
+      // Call the original onRowClick prop
+      onRowClick(event.data);
+      // Also open the edit modal
+      handleEditFlashcard(event.data);
+    },
+    [onRowClick, handleEditFlashcard]
+  );
 
-  const handleGridReady = (params: GridReadyEvent) => {
+  const handleGridReady = useCallback((params: GridReadyEvent) => {
     params.api.sizeColumnsToFit();
-  };
+  }, []);
 
   // Show loading state if topics are still loading
   if (topicsLoading) {
@@ -293,6 +355,15 @@ export default function FlashcardTable({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Edit Flashcard Modal */}
+      <EditFlashcardModal
+        open={editModalOpen}
+        onClose={handleCloseEditModal}
+        flashcard={flashcardToEdit}
+        onSave={handleSaveFlashcard}
+        topics={topics || []} // Pass the full topics array instead of just names
+      />
     </Box>
   );
 }

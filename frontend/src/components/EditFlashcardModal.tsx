@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Flashcard } from '@/types/flashcard';
+import type { Topic } from '@/types/topic'; // Assuming you have this type
 import {
   Dialog,
   DialogTitle,
@@ -18,24 +19,33 @@ import {
 } from '@mui/material';
 import { Edit, Save, Cancel, Close } from '@mui/icons-material';
 
-interface FlashcardModalProps {
+interface EditFlashcardModalProps {
   open: boolean;
   onClose: () => void;
   flashcard: Flashcard | null;
   onSave: (flashcard: Flashcard) => void;
-  topics: string[];
+  topics: Topic[]; // Changed to accept full topic objects instead of just names
 }
 
-export default function FlashcardModal({
+export default function EditFlashcardModal({
   open,
   onClose,
   flashcard,
   onSave,
   topics,
-}: FlashcardModalProps) {
+}: EditFlashcardModalProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedCard, setEditedCard] = useState<Flashcard | null>(null);
+
+  // Reset state when flashcard changes
+  useEffect(() => {
+    if (flashcard) {
+      setEditedCard({ ...flashcard });
+      setIsFlipped(false);
+      setIsEditing(false);
+    }
+  }, [flashcard]);
 
   const handleClose = () => {
     setIsFlipped(false);
@@ -52,36 +62,39 @@ export default function FlashcardModal({
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditedCard(flashcard);
   };
 
   const handleSave = () => {
     if (editedCard) {
       onSave(editedCard);
       setIsEditing(false);
-      setEditedCard(null);
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedCard(null);
+    setEditedCard(flashcard ? { ...flashcard } : null);
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
-      case 'easy':
+    switch (difficulty.toUpperCase()) {
+      case 'EASY':
         return 'success';
-      case 'medium':
+      case 'MEDIUM':
         return 'warning';
-      case 'hard':
+      case 'HARD':
         return 'error';
       default:
         return 'default';
     }
   };
 
-  if (!flashcard) return null;
+  const getTopicName = (topicId: number) => {
+    const topic = topics.find((t) => t.id === topicId);
+    return topic ? topic.name : 'Unknown';
+  };
+
+  if (!flashcard || !editedCard) return null;
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='md' fullWidth>
@@ -96,7 +109,7 @@ export default function FlashcardModal({
           <Typography variant='h6'>
             {isEditing ? 'Edit Flashcard' : 'Flashcard'}
           </Typography>
-          <Chip label={flashcard.topicId} size='small' />
+          <Chip label={getTopicName(flashcard.topicId)} size='small' />
           <Chip
             label={flashcard.difficulty}
             color={getDifficultyColor(flashcard.difficulty)}
@@ -137,7 +150,7 @@ export default function FlashcardModal({
               label='Question'
               multiline
               rows={3}
-              value={editedCard?.question || ''}
+              value={editedCard.question || ''}
               onChange={(e) =>
                 setEditedCard((prev) =>
                   prev ? { ...prev, question: e.target.value } : null
@@ -149,7 +162,7 @@ export default function FlashcardModal({
               label='Answer'
               multiline
               rows={4}
-              value={editedCard?.answer || ''}
+              value={editedCard.answer || ''}
               onChange={(e) =>
                 setEditedCard((prev) =>
                   prev ? { ...prev, answer: e.target.value } : null
@@ -160,17 +173,17 @@ export default function FlashcardModal({
               <FormControl sx={{ minWidth: 120 }}>
                 <InputLabel>Topic</InputLabel>
                 <Select
-                  value={editedCard?.topicId || ''}
+                  value={editedCard.topicId || ''}
                   label='Topic'
                   onChange={(e) =>
                     setEditedCard((prev) =>
-                      prev ? { ...prev, topic: e.target.value } : null
+                      prev ? { ...prev, topicId: Number(e.target.value) } : null
                     )
                   }
                 >
                   {topics.map((topic) => (
-                    <MenuItem key={topic} value={topic}>
-                      {topic}
+                    <MenuItem key={topic.id} value={topic.id}>
+                      {topic.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -178,17 +191,23 @@ export default function FlashcardModal({
               <FormControl sx={{ minWidth: 120 }}>
                 <InputLabel>Difficulty</InputLabel>
                 <Select
-                  value={editedCard?.difficulty || ''}
+                  value={editedCard.difficulty || ''}
                   label='Difficulty'
                   onChange={(e) =>
                     setEditedCard((prev) =>
-                      prev ? { ...prev, difficulty: e.target.value } : null
+                      prev
+                        ? {
+                            ...prev,
+                            difficulty: e.target
+                              .value as Flashcard['difficulty'],
+                          }
+                        : null
                     )
                   }
                 >
-                  <MenuItem value='Easy'>Easy</MenuItem>
-                  <MenuItem value='Medium'>Medium</MenuItem>
-                  <MenuItem value='Hard'>Hard</MenuItem>
+                  <MenuItem value='EASY'>Easy</MenuItem>
+                  <MenuItem value='MEDIUM'>Medium</MenuItem>
+                  <MenuItem value='HARD'>Hard</MenuItem>
                 </Select>
               </FormControl>
             </Box>
