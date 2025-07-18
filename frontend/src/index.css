@@ -46,3 +46,14 @@
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+/* Override ag-grid variables for dark mode */
+.ag-theme-material.dark-mode {
+  --ag-background-color: #1e1e1e;
+  --ag-header-background-color: #2b2b2b;
+  --ag-odd-row-background-color: #1e1e1e;
+  --ag-foreground-color: #ffffff;
+  --ag-header-foreground-color: #ffffff;
+  --ag-border-color: #444;
+  --ag-row-hover-color: #2a2a2a;
+}

@@ -15,7 +15,7 @@ import {
   flashcardCreateSchema,
   type FlashcardCreateFormData,
 } from '@/schemas/flashcard';
-import CreateFlashcardForm from './CreateFlashcardForm';
+import CreateFlashcardForm from '../Forms/CreateFlashcardForm';
 
 interface Props {
   open: boolean;
@@ -87,7 +87,6 @@ export default function CreateFlashcardModal({ open, onClose }: Props) {
           disabled={!isFormValid || isPending}
         >
           {isPending ? 'Saving...' : 'Save'}
-
         </Button>
       </DialogActions>
     </Dialog>

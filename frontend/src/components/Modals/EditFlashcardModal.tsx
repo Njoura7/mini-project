@@ -10,9 +10,9 @@ import { Save, Cancel } from '@mui/icons-material';
 import type { Flashcard } from '@/types/flashcard';
 import type { Topic } from '@/types/topic';
 import type { FlashcardEditFormData } from '@/schemas/flashcard';
-import FlashcardView from './FlashcardView';
-import FlashcardEditForm from './FlashcardEditForm';
-import FlashcardHeader from './FlashcardHeader';
+import FlashcardView from '../FlashcardView';
+import FlashcardEditForm from '../Forms/FlashcardEditForm';
+import FlashcardHeader from '../FlashcardHeader';
 
 interface EditFlashcardModalProps {
   open: boolean;

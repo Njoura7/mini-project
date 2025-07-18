@@ -12,9 +12,9 @@ import type {
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-material.css';
 import { Box, Chip } from '@mui/material';
-import { DeleteFlashcardDialog } from './DeleteFlashcardDialog';
+import { DeleteFlashcardDialog } from './Modals/DeleteFlashcardModal';
 import { FlashcardActionsCell } from './FlashcardActionsCell';
-import EditFlashcardModal from './EditFlashcardModal';
+import EditFlashcardModal from './Modals/EditFlashcardModal';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -57,10 +57,8 @@ export default function FlashcardTable({
     () => ({
       height: '100%',
       width: '100%',
-      backgroundColor: darkMode ? '#121212' : '#fff',
-      color: darkMode ? '#e0e0e0' : '#000',
     }),
-    [darkMode]
+    []
   );
 
   // Memoized mappings and configurations
@@ -136,7 +134,6 @@ export default function FlashcardTable({
     params.api.sizeColumnsToFit();
   }, []);
 
-  // Column definitions
   const defaultColDef = useMemo<ColDef>(
     () => ({
       sortable: true,
@@ -204,7 +201,6 @@ export default function FlashcardTable({
     [topicIdToName, isLoading, handleDeleteClick, difficultyColorMap]
   );
 
-  // Loading state
   if (isLoading) {
     return (
       <Box
@@ -223,7 +219,10 @@ export default function FlashcardTable({
 
   return (
     <Box sx={{ height: '600px', width: '100%' }}>
-      <div className='ag-theme-material' style={gridThemeConfig}>
+      <div
+        className={`ag-theme-material ${darkMode ? 'dark-mode' : ''}`}
+        style={gridThemeConfig}
+      >
         <AgGridReact
           rowData={flashcards}
           columnDefs={columnDefs}

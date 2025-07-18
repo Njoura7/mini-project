@@ -16,7 +16,7 @@ import {
 import { AddBoxRounded as AddFlashCard } from '@mui/icons-material';
 import Header from '@/components/Header';
 import FlashcardTable from '@/components/FlashcardTable';
-import CreateFlashcardModal from '@/components/CreateFlashcardModal';
+import CreateFlashcardModal from '@/components/Modals/CreateFlashcardModal';
 import FilterBar from '@/components/FilterBar';
 import TopicManager from '@/components/TopicManager';
 import type { Flashcard } from '@/types/flashcard';
