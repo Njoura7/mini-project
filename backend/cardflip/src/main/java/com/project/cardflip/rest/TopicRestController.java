@@ -21,12 +21,11 @@ import java.util.Map;
 public class TopicRestController {
 
     private TopicService topicService;
-    private ObjectMapper objectMapper;
+
 
     @Autowired
-    public TopicRestController(TopicService topicService,  ObjectMapper objectMapper) {
+    public TopicRestController(TopicService topicService) {
         this.topicService = topicService;
-        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/topics")
@@ -50,33 +49,6 @@ public class TopicRestController {
          return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/topics/{topicId}")
-    public Topic updateTopic(@RequestBody Map<String, Object> patchPayload, @PathVariable Long topicId) {
-        Topic existingTopic = topicService.getById(topicId);
-        if (existingTopic == null) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "Topic id : " + topicId + " not found, unable to edit");}
 
-        if (patchPayload.containsKey("id")) {
-            throw new ApiException(HttpStatus.NOT_FOUND,"Topic id modification not allowed");}
-
-        try{
-            return topicService.save(edit(patchPayload, existingTopic));
-        } catch (IllegalArgumentException ex) {
-            String causeMessage = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid input: " + causeMessage);
-        }
-
-    }
-
-    private Topic edit(Map<String, Object> patchPayload, Topic topic) {
-        ObjectNode topicNode = objectMapper.convertValue(topic, ObjectNode.class);
-        ObjectNode patchNode = objectMapper.convertValue(patchPayload, ObjectNode.class);
-
-        topicNode.setAll(patchNode);
-
-        return objectMapper.convertValue(topicNode, Topic.class);
-
-
-    }
 
 }
