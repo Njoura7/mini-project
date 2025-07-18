@@ -90,6 +90,7 @@ export default function App() {
             selectedTopic={selectedTopic}
             onTopicChange={setSelectedTopic}
           />
+          {/* put the delete and PATCH and pass with props */}
           <FlashcardTable
             flashcards={filteredFlashcards}
             onRowClick={handleRowClick}
