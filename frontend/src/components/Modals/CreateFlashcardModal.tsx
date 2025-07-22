@@ -84,9 +84,11 @@ export default function CreateFlashcardModal({ open, onClose }: Props) {
           onClick={handleSave}
           variant='contained'
           startIcon={<Save />}
+          loading={isPending}
+          loadingIndicator='Saving...'
           disabled={!isFormValid || isPending}
         >
-          {isPending ? 'Saving...' : 'Save'}
+          {isPending ? 'Saving...' : 'Save'} // MUI button has built-in loading state.
         </Button>
       </DialogActions>
     </Dialog>

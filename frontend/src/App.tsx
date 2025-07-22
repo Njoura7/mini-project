@@ -21,6 +21,7 @@ import FilterBar from '@/components/FilterBar';
 import TopicManager from '@/components/TopicManager';
 import type { Flashcard } from '@/types/flashcard';
 
+// Overall good, however I would have created a separate Home component or something, to move all these logic out of the App component.
 export default function App() {
   // State
   const [darkMode, setDarkMode] = useState(false);

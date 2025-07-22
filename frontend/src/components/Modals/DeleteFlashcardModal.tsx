@@ -70,7 +70,7 @@ export function DeleteFlashcardDialog({
           variant='contained'
           disabled={isDeleting}
         >
-          {isDeleting ? 'Deleting...' : 'Delete Flashcard'}
+          {isDeleting ? 'Deleting...' : 'Delete Flashcard'} // MUI button has built-in loading state.
         </Button>
       </DialogActions>
     </Dialog>
